@@ -4,7 +4,7 @@ const http = require("http");
 const port = process.env.PORT || 8080
 
 const server = http.createServer((req, res) => {
-	res.writeHead(400);
+	res.writeHead(200);
 	res.end("Repliclient server running!");
 });
 server.listen(port, () => {
@@ -23,13 +23,13 @@ function isRepliclientOrigin(origin) {
 
 wss.on("request", (req) => {
 	if (!isRepliclientOrigin(req.origin)) {
-		req.reject();
+		req.reject(403, "Connecting origin is not a Repliclient instance.");
 		return;
 	}
 
 	let connection = req.accept(undefined, req.origin);
 
-	console.log("Peer '" + connection.socket.remoteAdress + "' has connected.")
+	console.log("Peer '" + connection.remoteAdress + "' has connected.")
 	connection.on("message", (message) => {
 		if (message.type !== "utf8") {
 			return;
@@ -44,6 +44,6 @@ wss.on("request", (req) => {
 	});
 
 	connection.on("close", (reasonCode, desc) => {
-		console.log("Peer '" + connection.socket.remoteAdress + "' disconnected.")
+		console.log("Peer '" + connection.remoteAdress + "' disconnected.")
 	});
 });

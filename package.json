@@ -1,6 +1,6 @@
 {
   "name": "repliclient-ws",
-  "version": "2",
+  "version": "1",
   "description": "Repliclient shenanigans.",
   "main": "index.js",
   "scripts": {
