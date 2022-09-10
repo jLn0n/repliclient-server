@@ -4,10 +4,12 @@ const http = require("http");
 const port = process.env.PORT || 8080
 
 const server = http.createServer((req, res) => {
-	res.writeHead(400)
-	res.end()
+	res.writeHead(400);
+	res.end("Repliclient server running!");
 });
-server.listen(8080)
+server.listen(port, () => {
+	console.log("Repliclient server started on port: ${port}");
+});
 
 const wss = new WebSocketServer({
 	httpServer: server,
