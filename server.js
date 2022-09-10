@@ -8,7 +8,7 @@ const server = http.createServer((req, res) => {
 	res.end("Repliclient server running!");
 });
 server.listen(port, () => {
-	console.log("Repliclient server started on port: ${port}");
+	console.log("Repliclient server started on port: " + '${port}');
 });
 
 const wss = new WebSocketServer({
