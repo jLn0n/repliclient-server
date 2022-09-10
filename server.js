@@ -8,7 +8,7 @@ const server = http.createServer((req, res) => {
 	res.end("Repliclient server running!");
 });
 server.listen(port, () => {
-	console.log("Repliclient server started on port: " + '${port}');
+	console.log(`Repliclient server started on port: ${port}`);
 });
 
 const wss = new WebSocketServer({
@@ -29,7 +29,7 @@ wss.on("request", (req) => {
 
 	let connection = req.accept(undefined, req.origin);
 
-	console.log("Peer '" + connection.remoteAdress + "' has connected.")
+	console.log(`Peer '${connection.remoteAdress}' has connected!`)
 	connection.on("message", (message) => {
 		if (message.type !== "utf8") {
 			return;
@@ -44,6 +44,6 @@ wss.on("request", (req) => {
 	});
 
 	connection.on("close", (reasonCode, desc) => {
-		console.log("Peer '" + connection.remoteAdress + "' disconnected.")
+		console.log(`Peer '${connection.remoteAdress}' disconnected!`)
 	});
 });
