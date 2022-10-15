@@ -15,6 +15,16 @@ function broadcastToId(id, name, data) {
 	client.send(name, data);
 };
 
+function broadcastToOtherInstance(currentConnection, name, data) {
+	poll.connections.forEach((_connection) => {
+		if (_connection === currentConnection) {
+			return;
+		}
+
+		_connection.send(name, data)
+	});
+};
+
 function disconnectId(id) {
 	return broadcastToId(id, "disconnect")
 };
@@ -29,18 +39,17 @@ poll.on("connection", (connection) => {
 
 	if (isRepliclientInstance() === true) {
 		broadcastToId(connection.id, "connect", "data here needed!");
+		broadcastToOtherInstance(connection, "data_recieve", "ID_PLR_ADD packetBuffer here");
 	} else {
 		disconnectId();
 		return
 	};
+
+	connection.on("force_disconnect", () => {
+		return disconnectId(connection.id)
+	});
 	
 	connection.on("data_send", (msgData) => {
-		poll.connections.forEach((_connection) => {
-			if (_connection === connection) {
-				return;
-			}
-
-			_connection.send("data_recieve", msgData)
-		});
+		broadcastToOtherInstance(connection, "data_recieve", msgData)
 	});
 })
