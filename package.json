@@ -1,11 +1,11 @@
 {
-  "name": "repliclient-ws",
-  "version": "1",
-  "description": "Repliclient shenanigans.",
-  "main": "index.js",
+  "name": "repliclient-server",
+  "version": "1.0.0",
+  "description": "repliclient server but long-polled",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+	"startee": "node server.js"
   },
   "keywords": [],
   "author": "jLn0n",
@@ -13,6 +13,6 @@
   "dependencies": {
     "@types/node": "^18.0.6",
     "node-fetch": "^3.2.6",
-    "websocket": "^1.0.34"
+    "roblox-long-polling": "^2.0.4"
   }
 }

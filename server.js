@@ -1,49 +1,48 @@
-const WebSocketServer = require("websocket").server;
-const http = require("http");
+const rLongPolling = require("roblox-long-polling");
 
-const port = process.env.PORT || 8080
-
-const server = http.createServer((req, res) => {
-	res.writeHead(200);
-	res.end("Repliclient server running!");
-});
-server.listen(port, () => {
-	console.log(`Repliclient server started on port: ${port}`);
-});
-
-const wss = new WebSocketServer({
-	httpServer: server,
-	autoAcceptConnections: false,
+const poll = new rLongPolling({
+	port: process.env.PORT || 8080,
+	password: null
 })
 
-function isRepliclientOrigin(origin) {
+function broadcastToId(id, name, data) {
+	let client = poll.connections[id]
+
+	if (!client == null) {
+		return
+	};
+
+	client.send(name, data);
+};
+
+function disconnectId(id) {
+	return broadcastToId(id, "disconnect")
+};
+
+function isRepliclientInstance(origin) {
 	// TODO: figure out how to do this
 	return true;
 };
 
-wss.on("request", (req) => {
-	if (!isRepliclientOrigin(req.origin)) {
-		req.reject(403, "Connecting origin is not a Repliclient instance.");
-		return;
-	}
+poll.on("connection", (connection) => {
+	console.log(`Repliclient instance '${connection.id}' has connected!`);
 
-	let connection = req.accept(undefined, req.origin);
+	//poll.broadcast("new-connection", connection.id)
 
-	console.log(`Peer '${connection.remoteAdress}' has connected!`)
-	connection.on("message", (message) => {
-		if (message.type !== "utf8") {
-			return;
-		};
-		wss.connections.forEach((_connection) => {
-            // checks if the connection object is same as the connection object by the client
+	if (isRepliclientInstance() === true) {
+		broadcastToId(connection.id, "connect", "data here needed!");
+	} else {
+		disconnectId();
+		return
+	};
+	
+	connection.on("data_send", (msgData) => {
+		poll.connections.forEach((_connection) => {
 			if (_connection === connection) {
 				return;
-			};
-			_connection.sendUTF(message.utf8Data);
+			}
+
+			_connection.send("data_recieve", msgData)
 		});
 	});
-
-	connection.on("close", (reasonCode, desc) => {
-		console.log(`Peer '${connection.remoteAdress}' disconnected!`)
-	});
-});
+})
