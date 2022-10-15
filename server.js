@@ -27,8 +27,6 @@ function isRepliclientInstance(origin) {
 poll.on("connection", (connection) => {
 	console.log(`Repliclient instance '${connection.id}' has connected!`);
 
-	//poll.broadcast("new-connection", connection.id)
-
 	if (isRepliclientInstance() === true) {
 		broadcastToId(connection.id, "connect", "data here needed!");
 	} else {
