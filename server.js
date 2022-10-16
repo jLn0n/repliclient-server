@@ -16,10 +16,10 @@ function broadcastToId(id, name, data) {
 };
 
 function broadcastToOtherInstance(currentConnectionId, name, data) {
-	for (const _connection of Object.keys(poll.connections)) {
+	for (const _connection of Object.valueOf(poll.connections)) {
 		if (_connection.id === currentConnectionId) {
 			return;
-		}
+		};
 
 		_connection.send(name, data);
 	};
@@ -35,20 +35,18 @@ function isRepliclientInstance(origin) {
 };
 
 poll.on("connection", (connection) => {
-	console.log(`Repliclient instance '${connection.id}' has connected!`);
-
 	if (isRepliclientInstance() === true) {
-		broadcastToId(connection.id, "connect", "data here needed!");
-		broadcastToOtherInstance(connection.id, "data_recieve", "ID_PLR_ADD packetBuffer here");
+		broadcastToId(connection.id, "connect"/*, "data here needed!"*/);
+		//broadcastToOtherInstance(connection.id, "data_recieve", "ID_PLR_ADD packetBuffer here");
 		
-		console.log(`${connection.id} connected!`);
+		console.log(`Repliclient instance '${connection.id}' has connected!`);
 	} else {
 		disconnectId(connection.id);
 		return
 	};
 
 	connection.on("force_disconnect", () => {
-		console.log(`${id} disconnected!`);
+		console.log(`Repliclient instance '${id}' has disconnected!`);
 		return disconnectId(connection.id);
 	});
 	
