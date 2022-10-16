@@ -16,13 +16,13 @@ function broadcastToId(id, name, data) {
 };
 
 function broadcastToOtherInstance(currentConnectionId, name, data) {
-	poll.connections.forEach((_connection) => {
+	for (const _connection of Object.keys(poll.connections)) {
 		if (_connection.id === currentConnectionId) {
 			return;
 		}
 
 		_connection.send(name, data);
-	});
+	};
 };
 
 function disconnectId(id) {
