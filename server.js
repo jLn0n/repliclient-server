@@ -36,7 +36,7 @@ function isRepliclientInstance(origin) {
 
 poll.on("connection", (connection) => {
 	if (isRepliclientInstance() === true) {
-		broadcastToId(connection.id, "connect"/*, "data here needed!"*/);
+		setInterval(broadcastToId, 1500, connection.id, "connect"/*, "data here needed!"*/);
 		//broadcastToOtherInstance(connection.id, "data_recieve", "ID_PLR_ADD packetBuffer here");
 		
 		console.log(`Repliclient instance '${connection.id}' has connected!`);
