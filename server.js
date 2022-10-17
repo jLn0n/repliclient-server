@@ -8,8 +8,8 @@ const poll = new rLongPolling({
 function broadcastToId(id, name, data) {
 	let client = poll.connections[id]
 
-	if (!client == null) {
-		return
+	if (client == null) {
+		return;
 	};
 
 	client.send(name, data);
