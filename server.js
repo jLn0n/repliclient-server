@@ -29,4 +29,9 @@ backendConnection.on("connection", (newConnector) => {
     newConnector.on("data_send", (data) => {
         broadcastToOtherInstance(newConnector.clientId, "data_recieve", data);
     });
+
+    newConnector.on("send_disconnect", (data) => {
+        console.log(`Repliclient instance '${newConnector.clientId}' has disconnected!`);
+        newConnector._disconnect();
+    });
 });
