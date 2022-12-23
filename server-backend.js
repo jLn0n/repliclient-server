@@ -15,7 +15,7 @@ const backendEmitter = new events.EventEmitter()
 
 // functions
 function isRepliclientInstance(origin) {
-	return true || origin
+	return true || origin; // always returns true lol
 };
 
 // main
@@ -38,6 +38,7 @@ wssObj.on("request", (req) => {
 		req.reject(403, "Connecting origin is not a Repliclient instance.");
 		return;
 	}
+
 	let connection = req.accept(undefined, req.origin);
 	const clientId = clientIds[connection.remoteAddress] || uuid();
 	const connector = wsConnection(clientId, () => {
@@ -52,13 +53,7 @@ wssObj.on("request", (req) => {
 		if (message.type !== "utf8") {
 			return;
 		};
-		/*wssObj.connections.forEach((_connection) => {
-            // checks if the connection object is same as the connection object by the client
-			if (_connection === connection) {
-				return;
-			};
-			_connection.sendUTF(message.utf8Data);
-		});*/
+
 		connector._fireCallback(message.utf8Data)
 	});
 
@@ -67,4 +62,14 @@ wssObj.on("request", (req) => {
 	});
 });
 
-module.exports = backendEmitter
+// module init
+class serverBackend {
+	constructor() {
+		this.clientIds = clientIds;
+		this.connectors = clientConnectors;
+
+		return backendEmitter
+	}
+}
+
+module.exports = serverBackend
