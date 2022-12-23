@@ -1,23 +1,19 @@
 {
-  "name": "repliclient-server",
+  "name": "nodejs",
   "version": "1.0.0",
-  "description": "repliclient server but long-polled",
-  "main": "server.js",
+  "description": "",
+  "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "startee": "node server.js"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "jLn0n",
+  "author": "",
   "license": "ISC",
   "dependencies": {
     "@types/node": "^18.0.6",
     "events": "^3.3.0",
-    "express": "^4.18.2",
-    "express-longpoll": "^0.0.6",
-    "helmet": "^6.0.0",
-    "js-base64": "^3.7.2",
     "node-fetch": "^3.2.6",
-    "uuid": "^9.0.0"
+    "uuid": "^9.0.0",
+    "websocket": "^1.0.34"
   }
 }
