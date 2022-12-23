@@ -41,7 +41,7 @@ wssObj.on("request", (req) => {
 
 	let connection = req.accept(undefined, req.origin);
 	const clientId = clientIds[connection.remoteAddress] || uuid();
-	const connector = wsConnection(clientId, () => {
+	const connector = new wsConnection(clientId, () => {
 		delete clientConnectors[clientId];
 	});
 	clientConnectors[clientId] = connector
