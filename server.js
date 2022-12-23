@@ -2,7 +2,7 @@
 const backend = require("./server-backend.js")
 
 // variables
-const backendConnection = backend()
+const backendConnection = new backend()
 
 // functions
 function broadcastToId(clientId, eventName, data) {
