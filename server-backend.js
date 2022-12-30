@@ -44,6 +44,7 @@ wssObj.on("request", (req) => {
 	const connector = new wsConnection(clientId, () => {
 		delete clientConnectors[clientId];
 	});
+
 	clientConnectors[clientId] = connector
 
 	console.log(`Peer '${connection.remoteAdress}' has connected!`)

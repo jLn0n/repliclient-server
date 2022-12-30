@@ -1,13 +1,14 @@
 {
-  "name": "repliclient server",
+  "name": "repliclient-server-v2",
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "jLn0n",
   "license": "ISC",
   "dependencies": {
     "@types/node": "^18.0.6",
