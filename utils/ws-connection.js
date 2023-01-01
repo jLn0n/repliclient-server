@@ -3,24 +3,21 @@ const events = require("events");
 
 // main
 class websocketConnection {
-	constructor(client_id, remove_callback) {
-		this._internal = {};
-		this._internal.removeCallback = remove_callback;
-		this._internal.sendQueue = [];
-
-		this._websocketObj = null
+	constructor(client_id, socket, remove_callback) {
+		this._removeCallback = remove_callback;
+		this._websocketObj = socket;
+		this._lastPing = new Date();
 
 		this.stream = new events.EventEmitter();
 		this.clientId = client_id;
 
-		this._internal.pingInterval = setInterval(() => {
-            if (this._lastPing <= new Date(new Date().getTime() - 1000 * 30)) {
-                this._disconnect();
-                this.stream.emit("disconnect", "keepalive ping failed");
-            } else {
-                this.send("internal_ping")
-            }
-        }, 1000 * 2.5)
+		this._pingInterval = setInterval(() => {
+			if (this._lastPing <= new Date(new Date().getTime() - 1000 * 30)) {
+				this._disconnect("keepalive ping failed");
+			} else {
+				this.send("internal_ping")
+			}
+		}, 1000 * 2.5)
 	}
 
 	on(eventName, eventCallback) {
@@ -28,49 +25,35 @@ class websocketConnection {
 	}
 
 	send(eventName, data) {
-		this._internal.sendQueue.push({
-			name: eventName,
+		this._lastPing = new Date();
+		let rawData = {
+			name: Buffer.from(eventName).toString("base64"),
 			data: data
-		})
+		};
+		rawData = JSON.stringify(rawData);
+
+		this._websocketObj.sendUTF(Buffer.from(rawData).toString("base64"));
 	}
 
 	// @internal
 	_fireCallback(rawData) {
 		this._lastPing = new Date();
-		const msgData = JSON.parse(rawData)
+		const msgData = JSON.parse(Buffer.from(rawData, "base64").toString("utf8"));
 
-        if (msgData.name !== undefined) {
-            const name = Buffer.from(msgData.name, "base64").toString("utf8");
-            const data = Buffer.from(msgData.data || "null", "base64").toString("utf8");
+		if (msgData.name !== undefined) {
+			const name = Buffer.from(msgData.name, "base64").toString("utf8");
+			const data = (msgData.data || "null");
 
-            this.stream.emit(name, data)
-        }
+			this.stream.emit(name, data)
+		}
 	}
 
 	// @internal
-	_sendCallback(wsObj) {
-		this._lastPing = new Date();
-
-		if (this._internal.sendQueue.length !== 0) {
-			const removing = this._internal.sendQueue.shift()
-			clearInterval(getInterval)
-
-			if (!removing) { return; }
-			const rawData = {
-				name: Buffer.from(removing.name).toString("base64"),
-				data: JSON.stringify(removing.data)
-			};
-
-			wsObj.sendUTF(JSON.stringify(rawData));
-		};
+	_disconnect(reason) {
+		this.stream.emit("disconnect", reason || "forced disconnection");
+		clearInterval(this._pingInterval);
+		this._removeCallback();
 	}
-
-	// @internal
-	_disconnect() {
-        //this.stream.emit("disconnect", "forced disconnection");
-        clearInterval(this._internal.pingInterval);
-		this._internal.removeCallback();
-    }
 }
 
 module.exports = websocketConnection;

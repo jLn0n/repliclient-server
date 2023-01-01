@@ -2,11 +2,11 @@
 const backend = require("./server-backend.js")
 
 // variables
-const backendConnection = new backend()
+const backendServer = new backend()
 
 // functions
 function broadcastToId(clientId, eventName, data) {
-	let client = backendConnection.connectors[clientId]
+	let client = backendServer.connectors[clientId]
 
 	if (client === undefined) { return };
 
@@ -14,7 +14,7 @@ function broadcastToId(clientId, eventName, data) {
 };
 
 function broadcastToOtherInstance(currentClientId, eventName, data) {
-	for (const _connectionId of Object.keys(backendConnection.connectors)) {
+	for (const _connectionId of Object.keys(backendServer.connectors)) {
 		if (_connectionId === currentClientId) { continue };
 		
 		broadcastToId(_connectionId, eventName, data);
@@ -22,16 +22,15 @@ function broadcastToOtherInstance(currentClientId, eventName, data) {
 };
 
 // main
-backendConnection.on("connection", (newConnector) => {
+backendServer.connection.on("connection", (newConnector) => {
     console.log(`Repliclient instance '${newConnector.clientId}' has connected!`);
-    broadcastToId(newConnector.clientId, "connect");
+    broadcastToId(newConnector.clientId, "connect", newConnector.clientId);
 
     newConnector.on("data_send", (data) => {
         broadcastToOtherInstance(newConnector.clientId, "data_recieve", data);
     });
 
-    newConnector.on("send_disconnect", (data) => {
+    newConnector.on("disconnect", (data) => {
         console.log(`Repliclient instance '${newConnector.clientId}' has disconnected!`);
-        newConnector._disconnect();
     });
 });

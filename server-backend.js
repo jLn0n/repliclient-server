@@ -6,7 +6,7 @@ const uuid = require("uuid").v4;
 const wsConnection = require("./utils/ws-connection.js")
 
 // variables
-const port = (process.env.PORT || 8080);
+const port = (process.env.PORT || 80);
 
 const clientIds = {}
 const clientConnectors = {}
@@ -40,36 +40,33 @@ wssObj.on("request", (req) => {
 	}
 
 	let connection = req.accept(undefined, req.origin);
-	const clientId = clientIds[connection.remoteAddress] || uuid();
-	const connector = new wsConnection(clientId, () => {
+	const clientId = clientIds[connection.socket.remoteAddress] || uuid();
+	clientConnectors[clientId] = new wsConnection(clientId, connection, () => {
 		delete clientConnectors[clientId];
 	});
+	const connector = clientConnectors[clientId];
 
-	clientConnectors[clientId] = connector
-
-	console.log(`Peer '${connection.remoteAdress}' has connected!`)
-	backendEmitter.emit("connection", clientConnectors[clientId])
-	
+	backendEmitter.emit("connection", connector);
 	connection.on("message", (message) => {
 		if (message.type !== "utf8") {
 			return;
 		};
 
-		connector._fireCallback(message.utf8Data)
+		connector._fireCallback(message.utf8Data);
 	});
 
 	connection.on("close", (reasonCode, desc) => {
-		console.log(`Peer '${connection.remoteAdress}' disconnected!`)
+		connector._disconnect()
 	});
 });
 
 // module init
 class serverBackend {
 	constructor() {
+		this.connection = backendEmitter;
 		this.clientIds = clientIds;
-		this.connectors = clientConnectors;
 
-		return backendEmitter
+		this.connectors = clientConnectors
 	}
 }
 
