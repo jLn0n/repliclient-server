@@ -2,35 +2,47 @@
 const backend = require("./server-backend.js")
 
 // variables
-const backendServer = new backend()
+const backendServer = new backend
+
+const serverConfig = {
+	recievePerSecond: 30
+}
 
 // functions
 function broadcastToId(clientId, eventName, data) {
 	let client = backendServer.connectors[clientId]
 
-	if (client === undefined) { return };
-
-	client.send(eventName, data);
+	if (client !== undefined) {
+		client.send(eventName, data);
+	};
 };
 
 function broadcastToOtherInstance(currentClientId, eventName, data) {
 	for (const _connectionId of Object.keys(backendServer.connectors)) {
 		if (_connectionId === currentClientId) { continue };
-		
 		broadcastToId(_connectionId, eventName, data);
 	};
 };
 
 // main
-backendServer.connection.on("connection", (newConnector) => {
-    console.log(`Repliclient instance '${newConnector.clientId}' has connected!`);
-    broadcastToId(newConnector.clientId, "connect", newConnector.clientId);
+backendServer.connection.on("connect", (connector) => {
+    console.log(`Repliclient instance '${connector.clientId}' has connected!`);
+	let serverInfo = {
+		clientId: connector.clientId
+	}
+	serverInfo = Object.assign(serverInfo, serverConfig)
+	
+    broadcastToId(connector.clientId, "connect", JSON.stringify(serverInfo));
 
-    newConnector.on("data_send", (data) => {
-        broadcastToOtherInstance(newConnector.clientId, "data_recieve", data);
+    connector.on("data_send", (data) => {
+        broadcastToOtherInstance(connector.clientId, "data_recieve", data);
     });
 
-    newConnector.on("disconnect", (data) => {
-        console.log(`Repliclient instance '${newConnector.clientId}' has disconnected!`);
+	connector.on("ping", (pingStartTime) => {
+		broadcastToId(connector.clientId, "pong", pingStartTime)
+	});
+
+    connector.on("disconnect", (data) => {
+        console.log(`Repliclient instance '${connector.clientId}' has disconnected!`);
     });
 });

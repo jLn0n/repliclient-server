@@ -14,7 +14,7 @@ const clientConnectors = {}
 const backendEmitter = new events.EventEmitter()
 
 // functions
-function isRepliclientInstance(origin) {
+function isRepliclientInstance(origin) { // TODO: implement
 	return true || origin; // always returns true lol
 };
 
@@ -35,18 +35,21 @@ const wssObj = new wsServer({
 
 wssObj.on("request", (req) => {
 	if (!isRepliclientInstance(req.origin)) {
-		req.reject(403, "Connecting origin is not a Repliclient instance.");
+		req.reject(403, "Connecting client is not a Repliclient instance.");
 		return;
 	}
 
-	let connection = req.accept(undefined, req.origin);
-	const clientId = clientIds[connection.socket.remoteAddress] || uuid();
+	const connection = req.accept(undefined, req.origin);
+	const ipAddress = (connection.remoteAddress || connection.socket.remoteAddress);
+	
+	const clientId = clientIds[ipAddress] || uuid();
+	clientIds[ipAddress] = clientId;
 	clientConnectors[clientId] = new wsConnection(clientId, connection, () => {
 		delete clientConnectors[clientId];
 	});
 	const connector = clientConnectors[clientId];
 
-	backendEmitter.emit("connection", connector);
+	backendEmitter.emit("connect", connector);
 	connection.on("message", (message) => {
 		if (message.type !== "utf8") {
 			return;
@@ -64,8 +67,8 @@ wssObj.on("request", (req) => {
 class serverBackend {
 	constructor() {
 		this.connection = backendEmitter;
-		this.clientIds = clientIds;
 
+		this.clientIds = clientIds;
 		this.connectors = clientConnectors
 	}
 }
