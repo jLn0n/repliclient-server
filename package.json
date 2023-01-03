@@ -11,8 +11,8 @@
   "license": "ISC",
   "dependencies": {
     "@types/node": "^18.0.6",
+    "bit-buffer": "^0.2.5",
     "events": "^3.3.0",
-    "node-fetch": "^3.2.6",
     "uuid": "^9.0.0",
     "websocket": "^1.0.34"
   }

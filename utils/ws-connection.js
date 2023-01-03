@@ -26,6 +26,10 @@ class websocketConnection {
 		this._websocketObj.sendUTF(Buffer.from(rawData).toString("base64"));
 	}
 
+	close(reasonCode, desc) {
+		this.websocketObj.close(reasonCode, desc);
+	}
+
 	// @internal
 	_fireCallback(rawData) {
 		const msgData = JSON.parse(Buffer.from(rawData, "base64").toString("utf8"));
@@ -39,8 +43,8 @@ class websocketConnection {
 	}
 
 	// @internal
-	_disconnect(reason) {
-		this.stream.emit("disconnect", reason || "forced disconnection");
+	_disconnect(desc) {
+		this.stream.emit("disconnect", desc || "forced disconnection");
 		this._removeCallback();
 	}
 }

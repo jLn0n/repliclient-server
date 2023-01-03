@@ -1,7 +1,7 @@
 // imports
 const events = require("events");
 const http = require("http");
-const wsServer = require("websocket").server;
+const wsServer = require("websocket").server; //TODO: migrate to "ws" websocket library
 const uuid = require("uuid").v4;
 const wsConnection = require("./utils/ws-connection.js")
 
@@ -41,7 +41,7 @@ wssObj.on("request", (req) => {
 
 	const connection = req.accept(undefined, req.origin);
 	const ipAddress = (connection.remoteAddress || connection.socket.remoteAddress);
-	
+
 	const clientId = clientIds[ipAddress] || uuid();
 	clientIds[ipAddress] = clientId;
 	clientConnectors[clientId] = new wsConnection(clientId, connection, () => {
@@ -59,7 +59,7 @@ wssObj.on("request", (req) => {
 	});
 
 	connection.on("close", (reasonCode, desc) => {
-		connector._disconnect()
+		connector._disconnect(desc || "disconnected");
 	});
 });
 
